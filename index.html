@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Splendor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Wood */
+      --wood-light: #E8D9C5;
+      --wood-mid: #D4C0A8;
+      --wood-dark: #6B4F3A;
+      --wood-darker: #4A3628;
+      /* Felt */
+      --felt: #2D6E3F;
+      --felt-light: #357A4A;
+      --felt-dark: #245632;
+      /* Card */
+      --card-bg: #FFF8EF;
+      --card-border: #C9A84C;
+      --card-shadow: rgba(80, 50, 20, 0.25);
+      /* Gems */
+      --gem-white: #F0EBE0;
+      --gem-blue: #1B5E9E;
+      --gem-green: #1D8348;
+      --gem-red: #C0392B;
+      --gem-black: #1C1C1C;
+      --gem-gold: #D4A843;
+      /* UI */
+      --btn-primary: #D4A843;
+      --btn-primary-hover: #E0BA50;
+      --btn-primary-active: #C19A3A;
+      --btn-text: #3A2A1A;
+      --text-dark: #3A2A1A;
+      --text-mid: #6B5740;
+      --text-light: #FFF8EF;
+      --border-gold: #C9A84C;
+      --highlight: #F5E6A3;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+      background: var(--wood-light);
+      background-image:
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 40px,
+          rgba(160,130,90,0.06) 40px,
+          rgba(160,130,90,0.06) 42px
+        ),
+        repeating-linear-gradient(
+          87deg,
+          transparent,
+          transparent 80px,
+          rgba(140,110,70,0.04) 80px,
+          rgba(140,110,70,0.04) 82px
+        );
+      color: var(--text-dark);
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    /* ---- Board ---- */
+    .board {
+      width: max-content;
+      margin: 0 auto;
+      background: var(--felt);
+      border: 6px solid var(--wood-dark);
+      border-radius: 8px;
+      box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.15),
+        0 8px 32px rgba(60,30,10,0.3);
+      overflow: hidden;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: var(--wood-dark);
+      color: var(--text-light);
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+    .header .title { font-weight: 700; font-size: 18px; }
+    .header .scores { display: flex; gap: 24px; align-items: center; }
+    .header .sound-toggle {
+      background: transparent;
+      border: 1px solid var(--border-gold);
+      color: var(--border-gold);
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border-radius: 50%;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s, opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .header .sound-toggle .sound-icon { display: block; }
+    .header .sound-toggle.muted {
+      opacity: 0.65;
+      border-color: var(--text-light);
+      color: var(--text-light);
+    }
+    /* Hover gated so it does NOT stick on iPad/touch devices */
+    @media (hover: hover) and (pointer: fine) {
+      .header .sound-toggle:hover {
+        background: var(--border-gold);
+        color: var(--wood-darker);
+      }
+      .header .sound-toggle.muted:hover {
+        opacity: 1;
+      }
+    }
+
+    /* ---- Rows ---- */
+    .row {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      min-height: 60px;
+    }
+    .row:last-child { border-bottom: none; }
+
+    .section-label {
+      width: 72px;
+      flex-shrink: 0;
+      font-family: 'Josefin Sans', sans-serif;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,248,239,0.55);
+    }
+
+    .content { display: flex; flex-wrap: wrap; flex-grow: 1; align-items: center; gap: 8px; }
+
+    .disabled { pointer-events: none; opacity: 0.7; }
+
+    /* ---- Noble tiles ---- */
+    .noble {
+      width: 88px;
+      height: 78px;
+      background: var(--card-bg);
+      border: 2px solid var(--border-gold);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      box-shadow: 0 2px 8px var(--card-shadow);
+      font-size: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+    .noble-art {
+      position: absolute;
+      inset: 0;
+      /* background-image / size / position are set inline per tile by
+         src/gui/helpers.ts::tileStyle using the shared sprite sheet. */
+      pointer-events: none;
+    }
+    .noble .noble-top {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: flex-end;
+      padding: 3px 7px;
+      background: linear-gradient(to bottom, rgba(255,248,239,0.88) 0%, rgba(255,248,239,0.65) 60%, transparent 100%);
+      border-radius: 4px 4px 0 0;
+    }
+    .noble .pts {
+      font-family: 'Josefin Sans', sans-serif; font-weight: 700; font-size: 15px;
+      color: var(--wood-dark); text-shadow: 0 0 4px rgba(255,248,239,0.8);
+    }
+    .noble .noble-info {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      width: 100%; margin-top: auto;
+      padding: 4px 4px 5px;
+      background: linear-gradient(to top, rgba(255,248,239,0.88) 0%, rgba(255,248,239,0.7) 60%, transparent 100%);
+      border-radius: 0 0 4px 4px;
+    }
+    .noble .reqs { font-size: 11px; display: flex; gap: 4px; }
+    .noble .req-pip { box-shadow: 0 1px 2px rgba(0,0,0,0.25); }
+    .noble.claimable { box-shadow: 0 0 0 3px var(--highlight), 0 2px 8px var(--card-shadow); cursor: pointer; }
+    .noble.selected { box-shadow: 0 0 0 3px var(--highlight), 0 4px 12px var(--card-shadow); transform: translateY(-3px); }
+    /* Dim the art and points, but keep the cost (noble-info) at full opacity
+       so requirements remain clearly readable on non-eligible tiles. */
+    .noble.dimmed .noble-art { opacity: 0.45; }
+    .noble.dimmed .noble-top { opacity: 0.55; }
+
+    /* ---- Cards ---- */
+    .card {
+      width: 100px;
+      height: 100px;
+      background: var(--card-bg);
+      border: 1.5px solid rgba(201,168,76,0.5);
+      border-radius: 6px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 6px var(--card-shadow);
+      cursor: pointer;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-art {
+      position: absolute;
+      inset: 0;
+      /* background-image / size / position are set inline per tile by
+         src/gui/helpers.ts::tileStyle using the shared sprite sheet. */
+      pointer-events: none;
+    }
+    .card .bonus-line, .card .cost { position: relative; z-index: 1; }
+    .card .bonus-line {
+      display: flex; align-items: center; gap: 4px; font-size: 13px;
+      margin: -6px -8px 0; padding: 4px 8px;
+      background: linear-gradient(to bottom, rgba(255,248,239,0.88) 0%, rgba(255,248,239,0.65) 60%, transparent 100%);
+      border-radius: 5px 5px 0 0;
+    }
+    .card .cost {
+      margin: auto -8px -6px; padding: 4px 8px 5px;
+      font-size: 11px; color: var(--text-mid); display: flex; gap: 4px; flex-wrap: wrap;
+      background: linear-gradient(to top, rgba(255,248,239,0.88) 0%, rgba(255,248,239,0.65) 60%, transparent 100%);
+      border-radius: 0 0 5px 5px;
+    }
+    .card .pts { color: var(--wood-dark); text-shadow: 0 0 4px rgba(255,248,239,0.8); }
+    .card .cost .cost-pip { box-shadow: 0 1px 2px rgba(0,0,0,0.25); }
+    .card .bonus-dot { box-shadow: 0 0 0 1px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.2); }
+    .card.purchasable {
+      border-color: var(--border-gold); border-width: 2px;
+      box-shadow: 0 0 0 3px rgba(255,220,50,0.7), 0 0 0 6px rgba(255,220,50,0.35), 0 2px 6px var(--card-shadow);
+      /* tile-in plays once on mount, then card-glow loops (delayed so they don't fight) */
+      animation: tile-in 0.35s ease-out backwards, card-glow 1s ease-in-out 0.35s infinite;
+    }
+    @keyframes card-glow {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(255,220,50,0.7), 0 0 0 6px rgba(255,220,50,0.35), 0 2px 6px var(--card-shadow); }
+      50% { box-shadow: 0 0 0 4px rgba(255,220,50,0.7), 0 0 0 8px rgba(255,220,50,0.2), 0 2px 6px var(--card-shadow); }
+    }
+    .card.selected { box-shadow: 0 0 0 3px var(--highlight), 0 6px 16px var(--card-shadow); transform: translateY(-4px) scale(1.06); }
+    .card.purchasable.selected { box-shadow: 0 0 0 3px rgba(255,220,50,0.7), 0 0 0 6px rgba(255,220,50,0.35), 0 0 0 9px var(--highlight), 0 6px 16px var(--card-shadow); animation: none; }
+    .card.dimmed { opacity: 0.4; cursor: default; }
+
+    .card .bonus-dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.15); }
+    .card .pts { font-family: 'Josefin Sans', sans-serif; font-weight: 700; font-size: 15px; margin-left: auto; }
+    .card .cost .cost-pip {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 50%; color: #fff;
+      font-size: 10px; font-weight: 700;
+    }
+    .card .cost .cost-pip.gem-white { color: var(--text-dark); border: 1.5px solid rgba(0,0,0,0.15); }
+
+    /* 2x2 grid when exactly 4 cost pips */
+    .card .cost:has(.cost-pip:nth-child(4):last-child) {
+      display: grid;
+      grid-template-columns: repeat(2, 20px);
+      gap: 4px;
+      justify-content: start;
+    }
+
+    .card-sm {
+      width: 78px;
+      height: 60px;
+      padding: 4px 6px;
+    }
+    .card-sm .bonus-line {
+      margin: -4px -6px 0; padding: 3px 6px;
+    }
+    .card-sm .cost {
+      margin: auto -6px -4px; padding: 3px 6px 4px;
+    }
+    .card-sm .bonus-dot { width: 10px; height: 10px; }
+    .card-sm .pts { font-size: 12px; }
+    .card-sm .cost .cost-pip { width: 16px; height: 16px; font-size: 9px; }
+    .card-sm .cost:has(.cost-pip:nth-child(4):last-child) {
+      grid-template-columns: repeat(2, 16px);
+    }
+
+    /* ---- Deck ---- */
+    .deck {
+      width: 52px;
+      height: 100px;
+      background: var(--wood-darker);
+      border: 2px solid var(--wood-dark);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,248,239,0.5);
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+    .deck .deck-count { font-size: 18px; font-weight: 700; color: var(--border-gold); }
+
+    /* ---- Gem tokens ---- */
+    .gem-token {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 3px solid rgba(255,255,255,0.2);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.2);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      user-select: none;
+    }
+    .gem-token .gem-count { font-size: 18px; font-family: 'Josefin Sans', sans-serif; }
+    .gem-token.dimmed { opacity: 0.3; cursor: default; transform: none; }
+    .gem-token.selected { box-shadow: 0 0 0 4px var(--highlight), 0 3px 8px rgba(0,0,0,0.3); transform: scale(1.1); }
+    .gem-token.selected-double {
+      box-shadow: 0 0 0 4px var(--highlight), 0 0 0 8px rgba(245,230,163,0.4), 0 3px 12px rgba(0,0,0,0.35);
+      transform: scale(1.15);
+      animation: gem-pulse 1s ease-in-out infinite;
+    }
+    @keyframes gem-pulse {
+      0%, 100% { box-shadow: 0 0 0 4px var(--highlight), 0 0 0 8px rgba(245,230,163,0.4), 0 3px 12px rgba(0,0,0,0.35); }
+      50% { box-shadow: 0 0 0 5px var(--highlight), 0 0 0 10px rgba(245,230,163,0.25), 0 3px 12px rgba(0,0,0,0.35); }
+    }
+
+    .gem-white { background: var(--gem-white); color: var(--text-dark); border-color: rgba(0,0,0,0.1); }
+    .gem-blue { background: var(--gem-blue); }
+    .gem-green { background: var(--gem-green); }
+    .gem-red { background: var(--gem-red); }
+    .gem-black { background: var(--gem-black); }
+    .gem-gold { background: var(--gem-gold); color: var(--text-dark); }
+
+    .gem-mini {
+      width: 22px; height: 22px; border-radius: 50%; display: inline-flex;
+      align-items: center; justify-content: center; font-size: 10px;
+      font-weight: 700; border: 1.5px solid rgba(255,255,255,0.2);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .gem-mini.dimmed { opacity: 0.4; }
+
+    /* ---- Player panel ---- */
+    .player-panel {
+      display: flex;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .player-left {
+      flex: 1;
+      padding: 12px 14px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .player-right {
+      width: 280px;
+      padding: 12px 14px;
+    }
+    .player-label {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,248,239,0.55);
+      margin-bottom: 6px;
+    }
+    .player-score {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      line-height: 1;
+    }
+    .player-score .score-num {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-light);
+      text-shadow: 0 0 6px rgba(255,248,239,0.45);
+      line-height: 1;
+    }
+    .player-stats {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      align-items: center;
+      color: var(--text-light);
+      font-size: 13px;
+    }
+    .stat-row { display: flex; align-items: center; gap: 4px; }
+    .stat-row .label { font-size: 10px; color: rgba(255,248,239,0.5); text-transform: uppercase; letter-spacing: 1px; width: 48px; }
+
+    /* ---- Action bar ---- */
+    .action-bar {
+      padding: 10px 14px;
+      background: var(--wood-dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 48px;
+    }
+    .action-msg {
+      font-size: 13px;
+      color: var(--text-light);
+      font-style: italic;
+    }
+    .action-buttons { display: flex; gap: 8px; }
+
+    .btn {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 8px 20px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.08s ease;
+    }
+    .btn-primary {
+      background: var(--btn-primary);
+      color: var(--btn-text);
+      font-weight: 700;
+    }
+    .btn-primary:active { background: var(--btn-primary-active); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-light);
+      border: 1.5px solid rgba(255,248,239,0.3);
+    }
+    .btn.disabled { pointer-events: none; opacity: 0.4; }
+
+    /* ---- Setup screen ---- */
+    .setup-screen {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .setup-panel {
+      background: var(--felt);
+      border: 6px solid var(--wood-dark);
+      border-radius: 10px;
+      padding: 36px 48px;
+      box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.15),
+        0 8px 32px rgba(60,30,10,0.3);
+      text-align: center;
+      color: var(--text-light);
+    }
+    .setup-title {
+      font-family: 'Josefin Sans', sans-serif;
+      font-weight: 700;
+      font-size: 42px;
+      letter-spacing: 4px;
+    }
+    .setup-subtitle {
+      font-size: 16px;
+      margin: 14px 0 22px;
+      opacity: 0.85;
+    }
+    .setup-options {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+    }
+    .setup-btn {
+      min-width: 110px;
+      padding: 12px 18px;
+      font-size: 16px;
+    }
+    .setup-hint {
+      margin-top: 22px;
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    /* ---- Gold display ---- */
+    .gold-display {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+      padding-left: 16px;
+      font-size: 13px;
+      color: var(--border-gold);
+      font-weight: 600;
+    }
+
+    /* ---- Req pips in nobles (match card cost pips) ---- */
+    .req-pip {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 50%; color: #fff;
+      font-size: 10px; font-weight: 700;
+    }
+    .req-pip.gem-white { color: var(--text-dark); border: 1.5px solid rgba(0,0,0,0.15); }
+
+    /* ---- Bot bar ---- */
+    .bot-bar {
+      display: flex;
+      align-items: center;
+      padding: 6px 14px;
+      background: rgba(0,0,0,0.12);
+      font-size: 12px;
+      color: rgba(255,248,239,0.6);
+      gap: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .bot-bar .bot-label {
+      font-family: 'Josefin Sans', sans-serif;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,248,239,0.4);
+      width: 72px;
+      flex-shrink: 0;
+    }
+    /* Prominent score in opponent panel. Constrained to <=22px tall (matches
+       gem-mini height) so the bot-bar's overall height does not change. */
+    .bot-bar .bot-score {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 3px;
+      line-height: 1;
+    }
+    .bot-bar .bot-score .score-val {
+      font-family: 'Josefin Sans', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--text-light);
+      text-shadow: 0 0 6px rgba(255,248,239,0.45);
+      line-height: 1;
+    }
+    /* Shared "pts" subtitle — used by both .bot-score and .player-score so
+       both scoreboards render the unit identically. */
+    .score-unit {
+      font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: rgba(255,248,239,0.55);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-shadow: none;
+      line-height: 1;
+    }
+
+    /* ---- Discard row ---- */
+    .discard-row {
+      background: rgba(0,0,0,0.08);
+      animation: row-in 0.25s ease-out;
+    }
+
+    /* ---- Animations ---- */
+
+    /* Add transform transition to noble (base rule lacks one) */
+    .noble {
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease;
+    }
+
+    /* Press feedback (tactile sink on tap/click) */
+    .card:not(.dimmed):active { transform: scale(0.97); }
+    .card.selected:active { transform: translateY(-4px) scale(1.03); }
+    .gem-token:not(.dimmed):active { transform: scale(0.94); }
+    .gem-token.selected:active { transform: scale(1.05); }
+    .gem-token.selected-double:active { transform: scale(1.1); }
+    .noble.claimable:active { transform: scale(0.98); }
+    .noble.selected:active { transform: translateY(-3px) scale(0.97); }
+    .btn:not(.disabled):active { transform: translateY(1px); }
+
+    /* Noble claimable pulse (parallels .card.purchasable) */
+    .noble.claimable {
+      animation: tile-in 0.35s ease-out backwards, noble-glow 1.2s ease-in-out 0.35s infinite;
+      cursor: pointer;
+    }
+    .noble.claimable.selected { animation: none; }
+    @keyframes noble-glow {
+      0%, 100% { box-shadow: 0 0 0 3px var(--highlight), 0 2px 8px var(--card-shadow); }
+      50%      { box-shadow: 0 0 0 4px var(--highlight), 0 0 0 7px rgba(245,230,163,0.35), 0 2px 8px var(--card-shadow); }
+    }
+
+    /* Action button fade-in on mount (phase transitions remount buttons) */
+    .btn { animation: btn-in 0.2s ease-out; }
+    @keyframes btn-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Discard row slide-in (mounts only in DISCARDING phase) */
+    @keyframes row-in {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Board "breathing" while opponent thinks (phase === BOT_TURN sets .row.disabled).
+       Kept subtle so it doesn't compete with per-value pop animations fired on the
+       same render. */
+    .row.disabled { animation: board-breath 2.8s ease-in-out infinite; }
+    @keyframes board-breath {
+      0%, 100% { opacity: 0.7;  }
+      50%      { opacity: 0.8;  }
+    }
+
+    /* Initial entrance for cards and nobles (plays once on first mount) */
+    .card, .noble { animation: tile-in 0.35s ease-out backwards; }
+    .content > .card:nth-child(1),  .content > .noble:nth-child(1) { animation-delay: 0ms;   }
+    .content > .card:nth-child(2),  .content > .noble:nth-child(2) { animation-delay: 50ms;  }
+    .content > .card:nth-child(3),  .content > .noble:nth-child(3) { animation-delay: 100ms; }
+    .content > .card:nth-child(4),  .content > .noble:nth-child(4) { animation-delay: 150ms; }
+    .content > .noble:nth-child(5) { animation-delay: 200ms; }
+    @keyframes tile-in {
+      from { opacity: 0; transform: scale(0.9) translateY(4px); }
+      to   { opacity: 1; transform: scale(1)   translateY(0);   }
+    }
+
+    /* Per-value pop on mount — fires when a span is remounted via key={value}.
+       Immediate feedback for any count/score change; no state tracking needed.
+       `filter: brightness()` pushes past the parent-row dim (.disabled sets
+       opacity 0.7 right as BOT_TURN starts), keeping pops readable. */
+    .gem-mini { animation: mini-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+    @keyframes mini-pop {
+      0%   { transform: scale(0.3); opacity: 0;   filter: brightness(2); }
+      45%  { transform: scale(1.5); opacity: 1;   filter: brightness(1.6); box-shadow: 0 0 0 5px rgba(245,230,163,0.55), 0 1px 3px rgba(0,0,0,0.2); }
+      70%  { transform: scale(0.92);               }
+      100% { transform: scale(1);   filter: none; }
+    }
+
+    .gem-count {
+      display: inline-block;
+      animation: count-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+    }
+    @keyframes count-pop {
+      0%   { transform: scale(0.3); filter: brightness(2) drop-shadow(0 0 6px var(--highlight)); }
+      45%  { transform: scale(1.55); filter: brightness(1.6) drop-shadow(0 0 10px var(--highlight)); }
+      100% { transform: scale(1);   filter: none; }
+    }
+
+    .score-val, .score-num {
+      display: inline-block;
+      animation: score-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+    }
+    @keyframes score-pop {
+      0%   { transform: scale(0.4); color: var(--highlight); text-shadow: 0 0 8px var(--highlight); }
+      50%  { transform: scale(1.65); color: var(--highlight); text-shadow: 0 0 28px rgba(255,235,150,1), 0 0 12px rgba(255,220,100,0.95); }
+      100% { transform: scale(1); }
+    }
+
+    /* Hover effects — gated so they do NOT fire on touch (sticky-hover on iOS) */
+    @media (hover: hover) and (pointer: fine) {
+      .card:hover:not(.selected):not(.dimmed) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px var(--card-shadow);
+      }
+      .gem-token:hover:not(.selected):not(.selected-double):not(.dimmed) {
+        transform: scale(1.05);
+      }
+      .noble.claimable:hover:not(.selected) {
+        transform: translateY(-2px);
+      }
+      .btn-primary:hover { background: var(--btn-primary-hover); }
+      .btn-secondary:hover { background: rgba(255,248,239,0.08); }
+    }
+
+    /* Respect user motion preference — neutralize all animations */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="dist/gui.js"></script>
+</body>
+</html>
