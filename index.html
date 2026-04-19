@@ -573,6 +573,7 @@
     color: var(--ink);
     text-transform: uppercase;
     position: relative; z-index: 2;
+    transition: background 320ms ease, box-shadow 320ms ease;
   }
   .self.active{
     background: linear-gradient(180deg, rgba(139,90,43,0.18) 0%, rgba(184,146,42,0.12) 100%);
@@ -799,15 +800,19 @@
     to   { opacity: 1; transform: scale(1)   translateY(0);   }
   }
 
-  /* Board "breathing" while opponent thinks */
+  /* Board dim while opponent thinks. Using a static opacity + transition
+     (rather than a CSS animation) keeps both edges smooth: the previous
+     animation-based "breath" jumped to 0.78 the instant `.thinking` was
+     added and snapped back to 1 when removed, because CSS transitions
+     aren't triggered by animation-removal — that caused a whole-screen
+     flicker at every phase change. */
+  .main, .ribbon, .self{
+    transition: opacity 320ms ease;
+  }
   .thinking .main,
   .thinking .ribbon,
   .thinking .self{
-    animation: board-breath 2.8s ease-in-out infinite;
-  }
-  @keyframes board-breath{
-    0%, 100% { opacity: 0.78; }
-    50%      { opacity: 0.88; }
+    opacity: 0.82;
   }
 
   /* ============ FLIGHT CHOREOGRAPHY (ported from the Codex reference) ============ */
