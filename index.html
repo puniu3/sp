@@ -269,17 +269,11 @@
     display: flex; align-items: center; gap: 12px;
     position: relative; z-index: 2;
   }
-  .ribbon-lbl{
-    font-family: 'IM Fell English SC', serif;
-    font-size: 10px; letter-spacing: 0.22em;
-    color: var(--ink-3);
-    min-width: 100px;
-    text-transform: uppercase;
-  }
   .ribbon-noble-list{ display: flex; gap: 10px; flex: 1; flex-wrap: wrap; }
 
   .nchip{
     width: 120px;
+    height: 108px;
     background: var(--paper-light);
     border: 1px solid var(--sienna);
     padding: 0;
@@ -287,6 +281,19 @@
     display: flex; flex-direction: column;
     box-shadow: 0 1px 3px rgba(58,36,24,0.2);
     overflow: hidden;
+  }
+  .nchip .art{
+    position: absolute; inset: 0; z-index: 0;
+    background-image: var(--tiles);
+    background-repeat: no-repeat;
+    background-size: 1000% 1000%;
+    background-position: var(--tilepos, 0 0);
+  }
+  .nchip .art::after{
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 45%, transparent 50%, rgba(232,216,178,0.35) 100%);
+    pointer-events: none;
   }
   .nchip.claim{
     border: 2px solid var(--vermilion);
@@ -298,16 +305,10 @@
   }
   .nchip.dim{ opacity: 0.6; }
   .nchip .head{
-    display: flex; align-items: baseline; justify-content: space-between;
-    padding: 8px 10px 6px;
-    border-bottom: 1px solid var(--rule-soft);
-    background: linear-gradient(180deg, #F3E7C6 0%, var(--paper-light) 100%);
-  }
-  .nchip .head .label{
-    font-family: 'IM Fell English SC', serif;
-    font-size: 9.5px; letter-spacing: 0.18em;
-    color: var(--ink-3);
-    text-transform: uppercase;
+    position: relative; z-index: 1;
+    display: flex; justify-content: flex-end;
+    padding: 4px 8px 0;
+    background: none;
   }
   .nchip .head .pts{
     font-family: 'Cormorant Garamond', serif;
@@ -316,24 +317,24 @@
     color: var(--ink);
     line-height: 0.9;
     font-feature-settings: 'lnum';
+    padding: 0 4px;
+    background: radial-gradient(ellipse at 60% 40%, rgba(250,243,220,0.92) 35%, rgba(250,243,220,0) 75%);
   }
   .nchip.claim .head .pts{ color: var(--vermilion); }
   .nchip .foot{
-    display: flex; align-items: center; justify-content: space-between;
+    position: relative; z-index: 1;
+    margin-top: auto;
+    display: flex;
     padding: 5px 7px 6px;
-    gap: 4px;
   }
-  .nchip .reqs{ display: flex; gap: 3px; }
-  .nchip .check{
-    width: 14px; height: 14px; border-radius: 50%;
-    border: 1.5px solid var(--vermilion);
-    display: inline-flex; align-items: center; justify-content: center;
-    color: var(--vermilion);
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 700; font-size: 10px;
-    flex: none;
+  .nchip .reqs{ display: flex; gap: 8px; }
+  .nchip .reqs .pip{
+    border-radius: 3px;
+    box-shadow:
+      0 0 6px 2px rgba(255,250,235,0.7),
+      0 0 14px 6px rgba(255,250,235,0.45),
+      0 0 24px 10px rgba(255,250,235,0.2);
   }
-  .nchip .check.pending{ border-color: rgba(58,36,24,0.25); color: transparent; }
   .nchip .bar{
     position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
     background: rgba(58,36,24,0.12);
