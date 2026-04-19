@@ -342,10 +342,11 @@
   .nchip.claim .bar > span{ background: var(--vermilion); }
 
   .pip{
-    width: 18px; height: 18px; border-radius: 50%;
+    width: 22px; height: 22px; border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 700; font-size: 11px;
+    font-weight: 700; font-size: 14px;
+    font-feature-settings: 'lnum';
     border: 1px solid rgba(58,36,24,0.3);
   }
   .pip[data-c=W]{ background: var(--gem-W); color: var(--ink); }
@@ -353,6 +354,9 @@
   .pip[data-c=G]{ background: var(--gem-G); color: var(--paper-light); }
   .pip[data-c=R]{ background: var(--gem-R); color: var(--paper-light); }
   .pip[data-c=B]{ background: var(--gem-B); color: var(--paper-light); }
+  .pip[data-c=U], .pip[data-c=G], .pip[data-c=R], .pip[data-c=B]{
+    text-shadow: 0 1px 1.5px rgba(0,0,0,0.45);
+  }
   .pip.met{ border: 1.5px solid var(--vermilion); }
 
   /* ============ MAIN AREA ============ */
@@ -441,8 +445,14 @@
     outline-offset: 3px;
     box-shadow: 0 0 0 6px rgba(184,146,42,0.25), 0 3px 8px rgba(58,36,24,0.3);
   }
-  .gem .gcount{ font-size: 24px; line-height: 1; }
-  .gem .glbl{ font-size: 9px; letter-spacing: 0.18em; opacity: 0.72; margin-top: 2px; font-family: 'IM Fell English SC', serif;}
+  .gem .gcount{
+    font-size: 32px; line-height: 1; font-weight: 700;
+    font-feature-settings: 'lnum';
+  }
+  .gem[data-c=U] .gcount,
+  .gem[data-c=G] .gcount,
+  .gem[data-c=R] .gcount,
+  .gem[data-c=B] .gcount{ text-shadow: 0 1px 2px rgba(0,0,0,0.45); }
 
   /* Supply in discard mode — pulls from player tokens, click to discard */
   .gem.discard{ cursor: pointer; outline: 2px dashed var(--vermilion); outline-offset: 3px; }
@@ -539,6 +549,18 @@
     margin-top: auto;
     flex-wrap: wrap;
     gap: 5px;
+    justify-content: flex-start;
+  }
+  /* 4+ cost types: arrange pips as a 2-column grid so they don't stack into a
+     lop-sided 3+1 row. Uses :has(), which is universally supported in current
+     evergreen browsers. */
+  .card .bandBot:has(.pip:nth-child(4)){
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    grid-auto-flow: row;
+    justify-content: start;
+    align-content: end;
+    gap: 4px 5px;
   }
   .card .bonus{
     width: 22px; height: 22px; border-radius: 50%;
@@ -564,11 +586,17 @@
 
   /* Larger cost pips on market cards — ribbon nobles keep the 18px pip. */
   .card .bandBot .pip{
-    width: 26px; height: 26px;
-    font-size: 15px;
+    width: 30px; height: 30px;
+    font-size: 18px;
+    font-weight: 700;
     border-width: 1.5px;
+    font-feature-settings: 'lnum';
   }
   .card .bandBot .pip.met{ border-width: 2px; }
+  .card .bandBot .pip[data-c=U],
+  .card .bandBot .pip[data-c=G],
+  .card .bandBot .pip[data-c=R],
+  .card .bandBot .pip[data-c=B]{ text-shadow: 0 1px 1.5px rgba(0,0,0,0.45); }
 
   /* ============ SELF STRIP ============ */
   .self{
@@ -593,7 +621,16 @@
   .self .divider{ width: 1px; height: 26px; background: var(--rule); }
   .self .field{ display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .self .fname{ color: var(--ink-3); margin-right: 4px; }
-  .self .sgem{ width: 28px; height: 28px; font-size: 16px; }
+  .self .sgem{
+    width: 32px; height: 32px;
+    font-size: 19px;
+    font-weight: 700;
+    font-feature-settings: 'lnum';
+  }
+  .self .sgem[data-c=U],
+  .self .sgem[data-c=G],
+  .self .sgem[data-c=R],
+  .self .sgem[data-c=B]{ text-shadow: 0 1px 1.5px rgba(0,0,0,0.45); }
   .self-flex{ flex: 1; }
 
   .reserved-stack{ display: inline-flex; gap: 4px; }
