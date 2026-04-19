@@ -690,15 +690,36 @@
   }
   .action .spacer{ flex: 1; }
 
-  /* dark-bg override so sgem pills stay legible */
+  /* dark-bg override so sgem pills stay legible; also bump size/weight
+     to match self-strip readability pass */
   .action .sgem{
+    width: 28px; height: 28px;
+    font-size: 16px;
+    font-weight: 700;
+    font-feature-settings: 'lnum';
     border-color: rgba(244,234,210,0.55);
     box-shadow: 0 1px 2px rgba(0,0,0,0.35);
   }
+  .action .sgem[data-c=U],
+  .action .sgem[data-c=G],
+  .action .sgem[data-c=R],
+  .action .sgem[data-c=B]{ text-shadow: 0 1px 1.5px rgba(0,0,0,0.45); }
   .action .sgem.zero{ opacity: 0.3; }
+  .action .sgem.short{
+    border-color: var(--vermilion);
+    box-shadow: 0 0 0 1px var(--vermilion), 0 1px 2px rgba(0,0,0,0.35);
+  }
   .action .pip{
     border-color: rgba(244,234,210,0.55);
   }
+  .sel-op{
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    color: rgba(244,234,210,0.5);
+    line-height: 1;
+    padding: 0 2px;
+  }
+  .sel-op.short{ color: var(--vermilion); }
 
   .sel-card{
     display: inline-flex; align-items: center; gap: 10px;
@@ -735,7 +756,7 @@
     line-height: 1;
     padding: 0 4px;
   }
-  .sel-pay{ display: inline-flex; align-items: center; gap: 5px; }
+  .sel-pay{ display: inline-flex; align-items: center; gap: 7px; }
 
   .btn{
     font-family: 'IM Fell English SC', serif;
