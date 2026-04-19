@@ -458,6 +458,96 @@
   .gem.discard{ cursor: pointer; outline: 2px dashed var(--vermilion); outline-offset: 3px; }
   .gem.discard.zero{ cursor: default; outline: none; }
 
+  /* Inline Clear/Take row directly under the gem grid.
+     Stacks preview pills above the buttons so the 260px supply column fits. */
+  .supply-actions{
+    display: flex; flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-height: 68px;
+    margin-top: 10px;
+    padding: 8px 2px 2px;
+    border-top: 1px dashed var(--rule);
+  }
+  .supply-actions:empty{ border-top-color: transparent; padding-top: 0; }
+  .supply-actions .sel-pay{ display: inline-flex; align-items: center; gap: 6px; }
+  .supply-actions .sa-buttons{ display: flex; gap: 8px; }
+  .supply-actions .sgem{
+    width: 26px; height: 26px; font-size: 14px; font-weight: 700;
+    font-feature-settings: 'lnum';
+  }
+  .supply-actions .sgem[data-c=U],
+  .supply-actions .sgem[data-c=G],
+  .supply-actions .sgem[data-c=R],
+  .supply-actions .sgem[data-c=B]{ text-shadow: 0 1px 1.5px rgba(0,0,0,0.45); }
+  .supply-actions .btn{ padding: 6px 14px; font-size: 12px; min-width: 108px; text-align: center; }
+  .supply-actions .btn.ghost{
+    color: var(--ink);
+    border-color: var(--sienna);
+  }
+  @media (hover: hover){
+    .supply-actions .btn.ghost:hover{ background: rgba(58,36,24,0.08); }
+  }
+  .supply-hint{
+    font-family: 'IM Fell English SC', serif;
+    font-size: 10px; letter-spacing: 0.18em;
+    color: var(--ink-3);
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+
+  /* Inline action row at the bottom of the market: Cancel / Reserve / Buy
+     plus the cost preview when a card is selected. Light-bg variant of the
+     dark action-bar pills. */
+  .market-actions{
+    display: flex; align-items: center; gap: 10px;
+    min-height: 48px;
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: rgba(58,36,24,0.04);
+    border: 1px solid var(--rule);
+  }
+  .market-actions:empty{ background: transparent; border-color: transparent; }
+  .market-actions .sel-pay{ display: inline-flex; align-items: center; gap: 6px; }
+  .market-actions .spacer{ flex: 1; }
+  .market-actions .sel-card{
+    background: rgba(58,36,24,0.06);
+    border-color: var(--rule);
+  }
+  .market-actions .sel-title{ color: var(--ink); }
+  .market-actions .sel-bonus{ border-color: var(--sienna); }
+  .market-actions .sel-arrow{ color: var(--ink-3); }
+  .market-actions .sel-op{ color: var(--ink-3); }
+  .market-actions .sel-op.short{ color: var(--vermilion); }
+  .market-actions .sgem{
+    width: 26px; height: 26px; font-size: 14px; font-weight: 700;
+    font-feature-settings: 'lnum';
+  }
+  .market-actions .sgem[data-c=U],
+  .market-actions .sgem[data-c=G],
+  .market-actions .sgem[data-c=R],
+  .market-actions .sgem[data-c=B]{ text-shadow: 0 1px 1.5px rgba(0,0,0,0.45); }
+  .market-actions .sgem.short{
+    border-color: var(--vermilion);
+    box-shadow: 0 0 0 1px var(--vermilion), 0 1px 2px rgba(58,36,24,0.25);
+  }
+  .market-actions .amsg{ color: var(--ink-3); font-style: italic; }
+  .market-actions .btn{ padding: 6px 14px; font-size: 12px; min-width: 108px; text-align: center; }
+  .market-actions .btn.ghost{
+    color: var(--ink);
+    border-color: var(--sienna);
+  }
+  @media (hover: hover){
+    .market-actions .btn.ghost:hover{ background: rgba(58,36,24,0.08); }
+  }
+  .market-hint{
+    font-family: 'IM Fell English SC', serif;
+    font-size: 10px; letter-spacing: 0.18em;
+    color: var(--ink-3);
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+
   /* Market */
   .market{
     display: flex; flex-direction: column; gap: 8px;
@@ -601,7 +691,11 @@
   /* ============ SELF STRIP ============ */
   .self{
     padding: 12px 20px;
-    background: rgba(139,90,43,0.12);
+    /* Opaque stack: amber tint over paper so the .stage::after vine
+       decoration doesn't bleed through. */
+    background:
+      linear-gradient(180deg, rgba(139,90,43,0.12) 0%, rgba(139,90,43,0.12) 100%),
+      var(--paper);
     border-top: 1px solid var(--rule);
     display: flex; align-items: center; gap: 14px;
     font-family: 'IM Fell English SC', serif;
@@ -609,10 +703,15 @@
     color: var(--ink);
     text-transform: uppercase;
     position: relative; z-index: 2;
-    transition: background 320ms ease, box-shadow 320ms ease;
+    /* Fixed height so reserved chips (taller than sgems) don't inflate
+       the strip and shift the grid above. */
+    height: 64px;
+    transition: box-shadow 320ms ease;
   }
   .self.active{
-    background: linear-gradient(180deg, rgba(139,90,43,0.18) 0%, rgba(184,146,42,0.12) 100%);
+    background:
+      linear-gradient(180deg, rgba(139,90,43,0.18) 0%, rgba(184,146,42,0.12) 100%),
+      var(--paper);
     box-shadow: inset 0 2px 0 var(--gold-lt);
   }
   .self .you{ font-family: 'IM Fell English SC', serif; font-size: 13px; font-weight: 600; letter-spacing: 0.2em; }
@@ -633,7 +732,10 @@
   .self .sgem[data-c=B]{ text-shadow: 0 1px 1.5px rgba(0,0,0,0.45); }
   .self-flex{ flex: 1; }
 
-  .reserved-stack{ display: inline-flex; gap: 4px; }
+  .reserved-stack{ display: inline-flex; gap: 4px; min-width: 28px; min-height: 38px; }
+  /* When the player has no reserves yet, keep the field in the DOM (so the
+     first reserve animation has a layout target to fly to) but hide it. */
+  .reserved-field.empty{ visibility: hidden; }
   .rcard{
     width: 28px; height: 38px;
     background: var(--paper-light);
@@ -669,49 +771,43 @@
       0 2px 6px rgba(58,36,24,0.25);
   }
 
-  /* ============ ACTION BAR ============ */
-  .action{
-    padding: 12px 24px;
-    background: #3A2418;
-    color: var(--paper-light);
-    border-top: 1px solid var(--sienna);
-    display: flex; align-items: center; gap: 14px;
-    font-size: 14px;
-    min-height: 64px;
+  /* ============ OVERLAYS ============ */
+  .gameover-screen{
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(36,24,16,0.72);
+    backdrop-filter: blur(2px);
+    z-index: 20;
+    animation: gameover-fade 280ms ease-out;
   }
-  .action .alabel{
+  @keyframes gameover-fade{ from { opacity: 0; } to { opacity: 1; } }
+  .gameover-panel{
+    padding: 40px 56px;
+    text-align: center;
+    border: 2px double var(--vermilion);
+    background: var(--paper-light);
+    max-width: 560px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .gameover-title{
     font-family: 'IM Fell English SC', serif;
-    font-size: 11px; letter-spacing: 0.2em;
-    color: rgba(244,234,210,0.6);
+    font-size: 36px; letter-spacing: 0.22em;
+    color: var(--vermilion);
     text-transform: uppercase;
+    margin-bottom: 18px;
   }
-  .action .amsg{
-    font-style: italic; color: rgba(244,234,210,0.9);
+  .gameover-msg{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink);
+    margin-bottom: 26px;
   }
-  .action .spacer{ flex: 1; }
 
-  /* dark-bg override so sgem pills stay legible; also bump size/weight
-     to match self-strip readability pass */
-  .action .sgem{
-    width: 28px; height: 28px;
-    font-size: 16px;
-    font-weight: 700;
-    font-feature-settings: 'lnum';
-    border-color: rgba(244,234,210,0.55);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.35);
-  }
-  .action .sgem[data-c=U],
-  .action .sgem[data-c=G],
-  .action .sgem[data-c=R],
-  .action .sgem[data-c=B]{ text-shadow: 0 1px 1.5px rgba(0,0,0,0.45); }
-  .action .sgem.zero{ opacity: 0.3; }
-  .action .sgem.short{
-    border-color: var(--vermilion);
-    box-shadow: 0 0 0 1px var(--vermilion), 0 1px 2px rgba(0,0,0,0.35);
-  }
-  .action .pip{
-    border-color: rgba(244,234,210,0.55);
-  }
+  /* Shared inline-pill styles (used inside .market-actions; the old
+     .action context is gone but these are kept and colored by the
+     parent scope). */
   .sel-op{
     font-family: 'Cormorant Garamond', serif;
     font-size: 20px;
