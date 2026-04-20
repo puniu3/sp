@@ -269,7 +269,7 @@
     display: flex; align-items: center; gap: 12px;
     position: relative; z-index: 2;
   }
-  .ribbon-noble-list{ display: flex; gap: 10px; flex: 1; flex-wrap: wrap; }
+  .ribbon-noble-list{ display: flex; gap: 10px; flex: 1; flex-wrap: wrap; min-height: 108px; }
 
   .nchip{
     width: 120px;
@@ -336,11 +336,23 @@
       0 0 24px 10px rgba(255,250,235,0.2);
   }
   .nchip .bar{
-    position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
-    background: rgba(58,36,24,0.12);
+    position: absolute; left: 0; right: 0; bottom: 0; height: 6px;
+    background: transparent;
+    z-index: 2;
+    pointer-events: none;
   }
-  .nchip .bar > span{ position: absolute; inset: 0; background: var(--sienna); }
-  .nchip.claim .bar > span{ background: var(--vermilion); }
+  .nchip .bar > span{
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, var(--ink) 0%, var(--ink) 55%, var(--sienna-dk) 100%);
+    border-top: 1.5px solid var(--gold-lt);
+    box-shadow: 0 0 4px rgba(217,179,68,0.55), inset 0 1px 0 rgba(250,243,220,0.15);
+    transition: right 280ms cubic-bezier(.4,.1,.2,1);
+  }
+  .nchip.claim .bar > span{
+    background: linear-gradient(to bottom, var(--vermilion) 0%, var(--vermilion-dk) 100%);
+    border-top: 1.5px solid var(--gold-lt);
+    box-shadow: 0 0 6px rgba(217,179,68,0.75), inset 0 1px 0 rgba(255,235,200,0.25);
+  }
 
   .pip{
     width: 22px; height: 22px; border-radius: 50%;
